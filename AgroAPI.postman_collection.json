@@ -1,0 +1,37 @@
+{
+  "info": {
+    "name": "exam2_ancajima - AgroAPI",
+    "description": "Coleccion para demostrar 200, 201, 204, 400, 401, 403 y 409.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {"key": "baseUrl", "value": "http://localhost:8080/api/v1"},
+    {"key": "token", "value": ""}
+  ],
+  "item": [
+    {
+      "name": "Autenticacion",
+      "item": [
+        {
+          "name": "Login tecnico",
+          "event": [{"listen": "test", "script": {"exec": ["pm.collectionVariables.set('token', pm.response.json().token);"]}}],
+          "request": {"method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\n  \"usuario\": \"tecnico1\",\n  \"password\": \"Agro2026*\"\n}"}, "url": "{{baseUrl}}/auth/login"}
+        },
+        {
+          "name": "401 - Credenciales incorrectas",
+          "request": {"method": "POST", "header": [{"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\n  \"usuario\": \"tecnico1\",\n  \"password\": \"incorrecta\"\n}"}, "url": "{{baseUrl}}/auth/login"}
+        }
+      ]
+    },
+    {
+      "name": "Lotes y labores",
+      "item": [
+        {"name": "Listar lotes", "request": {"method": "GET", "header": [{"key": "Authorization", "value": "Bearer {{token}}"}], "url": "{{baseUrl}}/lotes?pagina=0&tamanio=20"}},
+        {"name": "401 - Sin token", "request": {"method": "GET", "header": [], "url": "{{baseUrl}}/lotes"}},
+        {"name": "Crear labor", "request": {"method": "POST", "header": [{"key": "Authorization", "value": "Bearer {{token}}"}, {"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\n  \"loteId\": 1,\n  \"tipo\": \"RIEGO\",\n  \"fecha\": \"2026-10-27\",\n  \"cantidad\": 12.0,\n  \"observacion\": \"Riego de verificacion\"\n}"}, "url": "{{baseUrl}}/labores"}},
+        {"name": "400 - Dosis excedida", "request": {"method": "POST", "header": [{"key": "Authorization", "value": "Bearer {{token}}"}, {"key": "Content-Type", "value": "application/json"}], "body": {"mode": "raw", "raw": "{\n  \"loteId\": 1,\n  \"tipo\": \"FUMIGACION\",\n  \"fecha\": \"2026-10-27\",\n  \"cantidad\": 9999,\n  \"observacion\": \"Debe fallar\"\n}"}, "url": "{{baseUrl}}/labores"}},
+        {"name": "403 - Tecnico intenta cerrar", "request": {"method": "POST", "header": [{"key": "Authorization", "value": "Bearer {{token}}"}], "url": "{{baseUrl}}/lotes/1/cerrar-campania"}}
+      ]
+    }
+  ]
+}
